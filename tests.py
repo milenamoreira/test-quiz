@@ -107,3 +107,27 @@ def test_select_more_choices_than_allowed():
     choice2 = question.add_choice('b', True)
     with pytest.raises(Exception):
         question.correct_selected_choices([choice1.id, choice2.id])
+
+
+@pytest.fixture
+def question_with_choices():
+    question = Question(title='q1', max_selections=2)
+    question.add_choice('a', True)
+    question.add_choice('b', False)
+    question.add_choice('c', True)
+    return question
+
+def test_fixture_question_has_three_choices(question_with_choices):
+    assert len(question_with_choices.choices) == 3
+
+def test_correct_selected_choices_with_fixture(question_with_choices):
+    result = question_with_choices.correct_selected_choices([1, 2])
+    assert result == [1]
+
+def test_new_choice_id_continues_after_existing_ones(question_with_choices):
+    choice = question_with_choices.add_choice('d')
+    assert choice.id == 4
+
+def test_remove_choice_keeps_the_others(question_with_choices):
+    question_with_choices.remove_choice_by_id(2)
+    assert [choice.id for choice in question_with_choices.choices] == [1, 3]
